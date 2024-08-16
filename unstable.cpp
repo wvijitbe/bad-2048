@@ -47,6 +47,32 @@ void spawnTile(Tile board[4][4], int val, int empty) {
     }
   }
 }
+void fluctuate(Tile board[4][4], int &empty) {
+  int idx = rand() % (4 * 4);
+  int i = idx / 4;
+  int j = idx % 4;
+  if (board[i][j].val != 0) {
+    if (rand() % 2 == 0) {
+      board[i][j].val++;
+    }
+    /*else {
+      if (board[i][j].val == 0) {
+        empty++;
+      }
+      board[i][j].val--;
+    }*/
+  }
+}
+
+int log2(int n) {
+  int power = 0;
+  while (n > 0) {
+    n /= 2;
+    power++;
+  }
+  return power - 1;
+}
+
 
 // return val is # of merges
 
@@ -58,8 +84,12 @@ bool slideLeft(Tile board[4][4], int &empty) {
       if ((j == merge_idx) || (board[i][j].val == 0)) {
         continue;
       }
-      if (board[i][j].val == board[i][merge_idx].val) { // merge
-        board[i][merge_idx].val *= 2;
+      if (log2(board[i][j].val) == log2(board[i][merge_idx].val)) { // merge
+        board[i][merge_idx].val += board[i][j].val;
+        if (board[i][merge_idx].val == 2048) {
+          std::cout << "You win!" << std::endl;
+          exit(0);
+        }
         merge_idx++;
         board[i][j].val = 0;
         empty++;
@@ -88,8 +118,12 @@ bool slideRight(Tile board[4][4], int &empty) {
       if ((j == merge_idx) || (board[i][j].val == 0)) {
         continue;
       }
-      if (board[i][j].val == board[i][merge_idx].val) { // merge
-        board[i][merge_idx].val *= 2;
+      if (log2(board[i][j].val) == log2(board[i][merge_idx].val)) { // merge
+        board[i][merge_idx].val += board[i][j].val;
+        if (board[i][merge_idx].val == 2048) {
+          std::cout << "You win!" << std::endl;
+          exit(0);
+        }
         merge_idx--;
         board[i][j].val = 0;
         empty++;
@@ -118,8 +152,12 @@ bool slideUp(Tile board[4][4], int &empty) {
       if ((i == merge_idx) || (board[i][j].val == 0)) {
         continue;
       }
-      if (board[i][j].val == board[merge_idx][j].val) { // merge
-        board[merge_idx][j].val *= 2;
+      if (log2(board[i][j].val) == log2(board[merge_idx][j].val)) { // merge
+        board[merge_idx][j].val += board[i][j].val;
+        if (board[i][merge_idx].val == 2048) {
+          std::cout << "You win!" << std::endl;
+          exit(0);
+        }
         merge_idx++;
         board[i][j].val = 0;
         empty++;
@@ -148,8 +186,12 @@ bool slideDown(Tile board[4][4], int &empty) {
       if ((i == merge_idx) || (board[i][j].val == 0)) {
         continue;
       }
-      if (board[i][j].val == board[merge_idx][j].val) { // merge
-        board[merge_idx][j].val *= 2;
+      if (log2(board[i][j].val) == log2(board[merge_idx][j].val)) { // merge
+        board[merge_idx][j].val += board[i][j].val;
+        if (board[i][merge_idx].val == 2048) {
+          std::cout << "You win!" << std::endl;
+          exit(0);
+        }
         merge_idx--;
         board[i][j].val = 0;
         empty++;
@@ -175,12 +217,13 @@ bool slideDown(Tile board[4][4], int &empty) {
 int main() {
   srand(time(NULL));
   Tile board[4][4];
-  //printBoard(board);
+
   int empty = 16;
   char action;
   while (true) {
     spawnTile(board, (rand() % 2 == 0) ? 2 : 4, empty);
     empty--;
+    fluctuate(board, empty);
     printBoard(board);
     bool repeat = true;
     while (repeat) {
@@ -200,6 +243,5 @@ int main() {
           break;
       }
     }
-    //std::cout << "empty=" << empty << std::endl;
   }
 }
