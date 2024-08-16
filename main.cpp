@@ -48,10 +48,10 @@ void spawnTile(Tile board[4][4], int val, int empty) {
   }
 }
 
-// return val is if merge was done
+// return val is # of merges
 
-bool slideLeft(Tile board[4][4]) {
-  bool merged = false;
+bool slideLeft(Tile board[4][4], int &empty) {
+  bool valid = false;
   for (int i = 0; i < 4; i++) {
     int merge_idx = 0; // index to merge with
     for (int j = 1; j < 4; j++) {
@@ -62,7 +62,8 @@ bool slideLeft(Tile board[4][4]) {
         board[i][merge_idx].val *= 2;
         merge_idx++;
         board[i][j].val = 0;
-        merged = true;
+        empty++;
+        valid = true;
       }
       else {
         if (board[i][merge_idx].val != 0) {
@@ -71,15 +72,16 @@ bool slideLeft(Tile board[4][4]) {
         if (board[i][merge_idx].val == 0) { // slide left into empty slot
           board[i][merge_idx].val = board[i][j].val;
           board[i][j].val = 0;
+          valid = true;
         }
       }
     }
   }
-  return merged;
+  return valid;
 }
 
-bool slideRight(Tile board[4][4]) {
-  bool merged = false;
+bool slideRight(Tile board[4][4], int &empty) {
+  bool valid = false;
   for (int i = 0; i < 4; i++) {
     int merge_idx = 4 - 1; // index to merge with
     for (int j = (4 - 1) - 1; j >= 0; j--) {
@@ -90,7 +92,8 @@ bool slideRight(Tile board[4][4]) {
         board[i][merge_idx].val *= 2;
         merge_idx--;
         board[i][j].val = 0;
-        merged = true;
+        empty++;
+        valid = true;
       }
       else {
         if (board[i][merge_idx].val != 0) {
@@ -99,15 +102,16 @@ bool slideRight(Tile board[4][4]) {
         if (board[i][merge_idx].val == 0) { // slide left into empty slot
           board[i][merge_idx].val = board[i][j].val;
           board[i][j].val = 0;
+          valid = true;
         }
       }
     }
   }
-  return merged;
+  return valid;
 }
 
-bool slideUp(Tile board[4][4]) {
-  bool merged = false;
+bool slideUp(Tile board[4][4], int &empty) {
+  bool valid = false;
   for (int j = 0; j < 4; j++) {
     int merge_idx = 0; // index to merge with
     for (int i = 1; i < 4; i++) {
@@ -118,7 +122,8 @@ bool slideUp(Tile board[4][4]) {
         board[merge_idx][j].val *= 2;
         merge_idx++;
         board[i][j].val = 0;
-        merged = true;
+        empty++;
+        valid = true;
       }
       else {
         if (board[merge_idx][j].val != 0) {
@@ -127,15 +132,16 @@ bool slideUp(Tile board[4][4]) {
         if (board[merge_idx][j].val == 0) { // slide left into empty slot
           board[merge_idx][j].val = board[i][j].val;
           board[i][j].val = 0;
+          valid = true;
         }
       }
     }
   }
-  return merged;
+  return valid;
 }
 
-bool slideDown(Tile board[4][4]) {
-  bool merged = false;
+bool slideDown(Tile board[4][4], int &empty) {
+  bool valid = false;
   for (int j = 0; j < 4; j++) {
     int merge_idx = 4 - 1; // index to merge with
     for (int i = (4 - 1) - 1; i >= 0; i--) {
@@ -146,7 +152,8 @@ bool slideDown(Tile board[4][4]) {
         board[merge_idx][j].val *= 2;
         merge_idx--;
         board[i][j].val = 0;
-        merged = true;
+        empty++;
+        valid = true;
       }
       else {
         if (board[merge_idx][j].val != 0) {
@@ -155,11 +162,12 @@ bool slideDown(Tile board[4][4]) {
         if (board[merge_idx][j].val == 0) { // slide left into empty slot
           board[merge_idx][j].val = board[i][j].val;
           board[i][j].val = 0;
+          valid = true;
         }
       }
     }
   }
-  return merged;
+  return valid;
 }
 
 
@@ -174,28 +182,24 @@ int main() {
     spawnTile(board, 1, empty);
     empty--;
     printBoard(board);
-    std::cin >> action;
-    switch (action) {
-      case 'a':
-        if (slideLeft(board)) {
-          empty++;
-        }
-        break;
-      case 's':
-        if (slideDown(board)) {
-          empty++;
-        }
-        break;
-      case 'd':
-        if (slideRight(board)) {
-          empty++;
-        }
-        break;
-      case 'w':
-        if (slideUp(board)) {
-          empty++;
-        }
-        break;
+    bool repeat = true;
+    while (repeat) {
+      std::cin >> action;
+      switch (action) {
+        case 'a':
+          repeat = !slideLeft(board, empty);
+          break;
+        case 's':
+          repeat = !slideDown(board, empty);
+          break;
+        case 'd':
+          repeat = !slideRight(board, empty);
+          break;
+        case 'w':
+          repeat = !slideUp(board, empty);
+          break;
+      }
     }
+    //std::cout << "empty=" << empty << std::endl;
   }
 }
